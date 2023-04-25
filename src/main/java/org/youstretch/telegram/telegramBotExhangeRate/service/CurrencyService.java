@@ -1,7 +1,6 @@
 package org.youstretch.telegram.telegramBotExhangeRate.service;
 
 import org.json.JSONObject;
-import org.springframework.expression.ParseException;
 import org.youstretch.telegram.telegramBotExhangeRate.model.CurrencyModel;
 
 import java.io.IOException;
@@ -12,21 +11,24 @@ import java.util.Scanner;
 
 public class CurrencyService {
 
-    public static String getCurrencyRate(String message, CurrencyModel model) throws IOException, ParseException {
-        URL url = new URL("https://www.nbrb.by/api/exrates/rates/" + message + "?parammode=2");
-        Scanner scanner = new Scanner((InputStream) url.getContent());
-        String result = "";
-        while (scanner.hasNext()){
-            result +=scanner.nextLine();
-        }
+    private static final String API_URL = "https://www.nbrb.by/api/exrates/rates/";
+    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    private static final String DISPLAY_DATE_FORMAT = "dd MMM yyyy";
+
+    public static String getCurrencyRate(String currencyCode, CurrencyModel model) throws IOException {
+        String apiUrl = API_URL + currencyCode + "?parammode=2";
+        URL url = new URL(apiUrl);
+        InputStream contentStream = url.openStream();
+        Scanner scanner = new Scanner(contentStream, "UTF-8");
+        String result = scanner.useDelimiter("\\Z").next();
+        scanner.close();
         JSONObject object = new JSONObject(result);
 
         model.setCur_ID(object.getInt("Cur_ID"));
         try {
-            model.setDate(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(object.getString("Date")));
+            model.setDate(new SimpleDateFormat(DATE_FORMAT).parse(object.getString("Date")));
         } catch (java.text.ParseException e) {
             System.out.println("Ошибка парсинга даты: " + e.getMessage());
-            // или можно выбросить новое исключение, если это более подходящий вариант для вашей программы
             throw new RuntimeException(e);
         }
 
@@ -35,14 +37,12 @@ public class CurrencyService {
         model.setCur_Name(object.getString("Cur_Name"));
         model.setCur_OfficialRate(object.getDouble("Cur_OfficialRate"));
 
-
-        return "Official rate of BYN to " + model.getCur_Abbreviation() + "\n" +
-                "on the date: " + getFormatDate(model) + "\n" +
-                "is: " + model.getCur_OfficialRate() + " BYN per " + model.getCur_Scale() + " " + model.getCur_Abbreviation();
-
+        return String.format("Official rate of BYN to %s\non the date: %s\nis: %s BYN per %d %s",
+                model.getCur_Abbreviation(), formatDate(model), model.getCur_OfficialRate(),
+                model.getCur_Scale(), model.getCur_Abbreviation());
     }
 
-    private static String getFormatDate(CurrencyModel model) {
-        return new SimpleDateFormat("dd MMM yyyy").format(model.getDate());
+    private static String formatDate(CurrencyModel model) {
+        return new SimpleDateFormat(DISPLAY_DATE_FORMAT).format(model.getDate());
     }
 }
