@@ -1,4 +1,4 @@
-package org.youstretch.telegram.telegramBotExhangeRate.config;
+package org.youstretch.telegram.yclientsapi.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-import org.youstretch.telegram.telegramBotExhangeRate.service.TelegramBot;
+import org.youstretch.telegram.yclientsapi.service.TelegramBot;
 
 
 @Component

@@ -1,6 +1,4 @@
-# Телеграмм бот для получения курса беларусской валюты
-Оригинальная статья https://habr.com/ru/articles/715384/
+# Телеграмм бот для работы с yclients
 
-Для старта бота требуется файл src/main/resources/application.properties с содержимым:
-bot.name=OfficialRateOfBYNBot
-bot.token=5888893679:AAGQWAbS0zCMtnQrTeWrVYz9KHj2nUlyVIw
+Для старта бота требуется скопировать файл src/main/resources/application.example.properties
+в файл src/main/resources/application.properties и отредактировать параметры
