@@ -54,7 +54,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             case "/start":
                 //startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
                 String name = update.getMessage().getChat().getFirstName();
-                response = "Привет, " + name + ", я - бот студии You Stretch!\nХотите записаться на занятие? Я помогу Вам выбрать подходящее время и забронировать место. \nКакое время и дата Вам удобны?";
+                response = "Привет, " + name + ", я - бот студии You Stretch!\n" +
+                        "Хотите записаться на занятие? Я помогу Вам выбрать подходящее время и забронировать место.";
                 break;
             case "список услуг":
                 try {
@@ -67,7 +68,13 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
                 break;
             case "Спросить администратора":
-                response = "Контакт администратора @GramTan\nКонтакт владельца @Smirnova_coach";
+                response = "Контакт администратора @youStretch";
+                break;
+            case "На сайт студии":
+                response = "youstretch.ru";
+                break;
+            case "Записаться онлайн":
+                response = "https://b911101.yclients.com/company/528085/activity/select?o=act2023-05-02";
                 break;
             case "/test":
                 response = "CompanyId = "+getYclientsCompanyId();
@@ -151,12 +158,13 @@ public class TelegramBot extends TelegramLongPollingBot {
         //Инициализируем первую строчку клавиатуры
         KeyboardRow keyboardFirstRow = new KeyboardRow();
 
-        keyboardFirstRow.add(new KeyboardButton("/start"));
-        keyboardFirstRow.add(new KeyboardButton("список услуг"));
-        keyboardFirstRow.add(new KeyboardButton("/help"));
-        keyboardFirstRow.add(new KeyboardButton("/test"));
+        //keyboardFirstRow.add(new KeyboardButton("/start"));
+        //keyboardFirstRow.add(new KeyboardButton("список услуг"));
+        //keyboardFirstRow.add(new KeyboardButton("/help"));
+        keyboardFirstRow.add(new KeyboardButton("На сайт студии"));
         //keyboardFirstRow.add(new KeyboardButton("Контакты"));
         keyboardFirstRow.add(new KeyboardButton("Спросить администратора"));
+        keyboardFirstRow.add(new KeyboardButton("Записаться онлайн"));
 
         //Добавляем все строчки клавиатуры в список
         keyboardRowList.add(keyboardFirstRow);

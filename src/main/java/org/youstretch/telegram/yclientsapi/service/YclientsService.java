@@ -39,6 +39,9 @@ public class YclientsService {
         partnerToken = "Bearer "+partnerToken;
         String acceptHeader = "application/vnd.yclients.v2+json";
         String contentTypeHeader = "application/json";
+        Integer staffId = 91;
+        String date = "2015-09-01";
+        //Call<String> call = yclientsAPI.getBookServices(companyId, partnerToken, acceptHeader, staffId, date, contentTypeHeader);
         Call<String> call = yclientsAPI.getBookServices(companyId, partnerToken, acceptHeader, contentTypeHeader);
         Response<String> response = call.execute();
         setLog(response);

@@ -20,13 +20,14 @@ public interface YclientsApi {
     //staff_id:[number] ID сотрудника. Фильтр по идентификатору сотрудника Default: 0
     //datetime:[number] дата (в формате iso8601). Фильтр по дате бронирования услуги (например '2005-09-09T18:30') Default: ''
     //service_ids[]:[Array of numbers] ID услуг. Фильтр по списку идентификаторов уже выбранных (в рамках одной записи) услуг. Имеет смысл если задан фильтр по мастеру и дате.
-
     @GET("/api/v1/book_services/{company_id}")
     Call<String> getBookServices(
             //@Path("company_id") String companyId,
-            @Path("company_id") Number companyId,
+            @Path("company_id") Integer companyId,
             @Header("Authorization") String partnerToken,
             @Header("Accept") String acceptHeader,
+//            @Header("staff_id") Integer staffId,
+//            @Header("date") String date,
             @Header("Content-Type") String contentTypeHeader
     );
 
