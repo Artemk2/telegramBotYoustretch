@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -85,7 +87,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 break;
             case "Адрес студии":
                 response = "м. Менделеевская\n" +
-                        "г. Москва, ул. Новослободская, д. 26, корп. 1\nКабинет 233 (2 подъeзд)\nДомофон 233";
+                        "г. Москва, ул. Новослободская, д. 26, корп. 1\nКабинет 233 (2 подъeзд)\nДомофон 233\nВторой этаж";
                 break;
             case "Пробное занятие":
                 response = "600 рублей";
@@ -97,11 +99,19 @@ public class TelegramBot extends TelegramLongPollingBot {
                 response = "https://ailfo.tb.ru/price";
                 break;
             case "Направления":
-                response = "Гибкость\nЗдоровая спина\nРельеф и гибкость\nДва шпагата\nГибкость и медитация\n" +
-                        "Акробатика\nТанцы\nМедитация поющими чашами";
+                response = "Гибкость 60 минут\nЗдоровая спина 60 минут\nРельеф + гибкость 90 минут\n" +
+                        "Два шпагата 90 минут\nГибкость и медитация 90 минут\nРельеф 60 минут\n" +
+                        "Свободный формат 60-90 минут\n" +
+                        "Акробатика 60 минут\nТанцы\nМедитация поющими чашами";
                 break;
             case "Форматы":
                 response = "Форматы занятий:\nИндивидуальные тренировки\nМини группы - 3 человека";
+                break;
+            case "Найти студию":
+                response = "sendVideo";
+                break;
+            case "Чат\uD83D\uDCAC":
+                response = "https://t.me/+aoFPJzY-bP6LyVR3";
                 break;
             case "Получить тренеров":
                 try {
@@ -123,7 +133,25 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (response == null) {
             response = "ошибка в работе бота.\nОтветное сообщение не подготовлено";
         }
-        sendMessage(chatId, response);
+        if (!response.equals("sendVideo")) {
+            sendMessage(chatId, response);
+        } else {
+            // Путь к видеофайлу
+            String videoFilePath = "src/main/resources/videoRoute.mp4";
+            //Отправка видео
+            try {
+                // Создаем объект для отправки видео
+                SendVideo sendVideo = new SendVideo();
+                sendVideo.setChatId(chatId);
+                sendVideo.setVideo(new InputFile(videoFilePath));
+
+                // Отправляем видео
+                execute(sendVideo);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
 
@@ -196,6 +224,8 @@ public class TelegramBot extends TelegramLongPollingBot {
         keyboardSecondRow.add(new KeyboardButton("Пробное занятие"));
         keyboardThirdRow.add(new KeyboardButton("Купить абонемент"));
         keyboardThirdRow.add(new KeyboardButton("Направления"));
+        //keyboardThirdRow.add(new KeyboardButton("Найти студию"));
+        keyboardThirdRow.add(new KeyboardButton("Чат\uD83D\uDCAC"));
 
         //Добавляем все строчки клавиатуры в список
         keyboardRowList.add(keyboardFirstRow);
