@@ -76,11 +76,16 @@ public class YclientsService {
                                 response.code() == 202
                 )
         ) {
-            message = "Произошла ошибка: ";
+            message = "Произошла ошибка:\n";
             switch (response.code()) {
                 case 401:
-                    message = message + "\n401 Unauthorized («не авторизован (не представился)»)";
+                    message = message + "401 Unauthorized («не авторизован (не представился)»)";
                     break;
+                case 404:
+                    message = message + "404 Not Found («не найдено»)";
+                    break;
+                default:
+                    message = message + + response.code();
             }
             System.out.println(message);
             System.out.println(response.errorBody());

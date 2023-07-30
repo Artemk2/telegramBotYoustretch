@@ -13,6 +13,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.youstretch.telegram.yclientsapi.config.BotConfig;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,9 +32,11 @@ public class TelegramBot extends TelegramLongPollingBot {
     public String getBotToken() {
         return botConfig.getTelegramToken();
     }
+
     public String getYclientsCompanyId() {
         return botConfig.getYclientsCompanyId();
     }
+
     public String getYclientsPartnerToken() {
         return botConfig.getYclientsPartnerToken();
     }
@@ -48,7 +52,6 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         YclientsService yclientsService = new YclientsService();
         String response = null;
-
         //Обработка сообщения
         switch (messageText) {
             case "/start":
@@ -61,23 +64,44 @@ public class TelegramBot extends TelegramLongPollingBot {
                 try {
                     Integer companyId = Integer.parseInt(getYclientsCompanyId());
                     String partnerToken = getYclientsPartnerToken();
-                    response = yclientsService.getBookServices(companyId,partnerToken);
+                    response = yclientsService.getBookServices(companyId, partnerToken);
                 } catch (IOException e) {
                     sendErrorMessage(chatId, e);
                     throw new RuntimeException(e);
                 }
                 break;
-            case "Спросить администратора":
+            case "Админ\uD83D\uDC67":
                 response = "Контакт администратора @youStretch";
                 break;
             case "На сайт студии":
                 response = "youstretch.ru";
                 break;
             case "Записаться онлайн":
-                response = "https://b911101.yclients.com/company/528085/activity/select?o=act2023-05-02";
+                LocalDate today = LocalDate.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                String formattedDate = today.format(formatter);
+                System.out.println(formattedDate);
+                response = "https://b911101.yclients.com/company/528085/activity/select?o=act" + formattedDate;
+                break;
+            case "Адрес студии":
+                response = "м. Менделеевская\n" +
+                        "г. Москва, ул. Новослободская, д. 26, корп. 1\nКабинет 233 (2 подъeзд)\nДомофон 233";
+                break;
+            case "Пробное занятие":
+                response = "600 рублей";
                 break;
             case "/test":
-                response = "CompanyId = "+getYclientsCompanyId();
+                response = "CompanyId = " + getYclientsCompanyId();
+                break;
+            case "Купить абонемент":
+                response = "https://ailfo.tb.ru/price";
+                break;
+            case "Направления":
+                response = "Гибкость\nЗдоровая спина\nРельеф и гибкость\nДва шпагата\nГибкость и медитация\n" +
+                        "Акробатика\nТанцы\nМедитация поющими чашами";
+                break;
+            case "Форматы":
+                response = "Форматы занятий:\nИндивидуальные тренировки\nМини группы - 3 человека";
                 break;
             case "Получить тренеров":
                 try {
@@ -96,16 +120,16 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
 
 //отправка сообщения
-        if (response==null){
-            response="ошибка в работе бота.\nОтветное сообщение не подготовлено";
+        if (response == null) {
+            response = "ошибка в работе бота.\nОтветное сообщение не подготовлено";
         }
         sendMessage(chatId, response);
     }
 
+
     private void sendErrorMessage(long chatId, IOException e) {
-        String message = "Произошла ошибка при работе telegram бота yclients";
+        String message = "Произошла ошибка при работе telegram бота yclients:\n" + e.getMessage();
         sendMessage(chatId, message);
-        sendMessage(chatId, e.getMessage());
     }
 
     private void startCommandReceived(Long chatId, String name) {
@@ -117,7 +141,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText(textToSend);
-        System.out.println("chatId="+chatId +", textToSend="+ textToSend);
+        System.out.println("chatId=" + chatId + ", textToSend=" + textToSend);
         try {
             setButtonsMainMenu(sendMessage);
             execute(sendMessage);
@@ -157,17 +181,26 @@ public class TelegramBot extends TelegramLongPollingBot {
         List<KeyboardRow> keyboardRowList = new ArrayList();
         //Инициализируем первую строчку клавиатуры
         KeyboardRow keyboardFirstRow = new KeyboardRow();
+        KeyboardRow keyboardSecondRow = new KeyboardRow();
+        KeyboardRow keyboardThirdRow = new KeyboardRow();
 
         //keyboardFirstRow.add(new KeyboardButton("/start"));
         //keyboardFirstRow.add(new KeyboardButton("список услуг"));
         //keyboardFirstRow.add(new KeyboardButton("/help"));
         keyboardFirstRow.add(new KeyboardButton("На сайт студии"));
         //keyboardFirstRow.add(new KeyboardButton("Контакты"));
-        keyboardFirstRow.add(new KeyboardButton("Спросить администратора"));
-        keyboardFirstRow.add(new KeyboardButton("Записаться онлайн"));
+        keyboardFirstRow.add(new KeyboardButton("Админ\uD83D\uDC67"));
+        keyboardFirstRow.add(new KeyboardButton("Форматы"));
+        keyboardSecondRow.add(new KeyboardButton("Записаться онлайн"));
+        keyboardSecondRow.add(new KeyboardButton("Адрес студии"));
+        keyboardSecondRow.add(new KeyboardButton("Пробное занятие"));
+        keyboardThirdRow.add(new KeyboardButton("Купить абонемент"));
+        keyboardThirdRow.add(new KeyboardButton("Направления"));
 
         //Добавляем все строчки клавиатуры в список
         keyboardRowList.add(keyboardFirstRow);
+        keyboardRowList.add(keyboardSecondRow);
+        keyboardRowList.add(keyboardThirdRow);
         replyKeyboardMarkup.setKeyboard(keyboardRowList);
     }
 }
