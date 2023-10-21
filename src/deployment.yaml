@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegramm-bot-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: telegramm-bot
+  template:
+    metadata:
+      labels:
+        app: telegramm-bot
+    spec:
+      containers:
+        - name: telegramm-bot
+          image: 299273283414.dkr.ecr.eu-north-1.amazonaws.com/youstretch:telegramm-bot-0.0.0
+          ports:
+            - containerPort: 8080

@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -13,6 +15,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.youstretch.telegram.yclientsapi.config.BotConfig;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,9 +34,11 @@ public class TelegramBot extends TelegramLongPollingBot {
     public String getBotToken() {
         return botConfig.getTelegramToken();
     }
+
     public String getYclientsCompanyId() {
         return botConfig.getYclientsCompanyId();
     }
+
     public String getYclientsPartnerToken() {
         return botConfig.getYclientsPartnerToken();
     }
@@ -48,29 +54,64 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         YclientsService yclientsService = new YclientsService();
         String response = null;
-
         //Обработка сообщения
         switch (messageText) {
             case "/start":
                 //startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
                 String name = update.getMessage().getChat().getFirstName();
-                response = "Привет, " + name + ", я - бот студии You Stretch!\nХотите записаться на занятие? Я помогу Вам выбрать подходящее время и забронировать место. \nКакое время и дата Вам удобны?";
+                response = "Привет, " + name + ", я - бот студии You Stretch!\n" +
+                        "Хотите записаться на занятие? Я помогу Вам выбрать подходящее время и забронировать место.";
                 break;
             case "список услуг":
                 try {
                     Integer companyId = Integer.parseInt(getYclientsCompanyId());
                     String partnerToken = getYclientsPartnerToken();
-                    response = yclientsService.getBookServices(companyId,partnerToken);
+                    response = yclientsService.getBookServices(companyId, partnerToken);
                 } catch (IOException e) {
                     sendErrorMessage(chatId, e);
                     throw new RuntimeException(e);
                 }
                 break;
-            case "Спросить администратора":
-                response = "Контакт администратора @GramTan\nКонтакт владельца @Smirnova_coach";
+            case "Админ\uD83D\uDC67":
+                response = "Контакт администратора @youStretch";
+                break;
+            case "На сайт студии":
+                response = "youstretch.ru";
+                break;
+            case "Записаться онлайн":
+                LocalDate today = LocalDate.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                String formattedDate = today.format(formatter);
+                System.out.println(formattedDate);
+                response = "https://b911101.yclients.com/company/528085/activity/select?o=act" + formattedDate;
+                break;
+            case "Адрес студии":
+                response = "м. Менделеевская\n" +
+                        "г. Москва, ул. Новослободская, д. 26, корп. 1\nКабинет 233 (2 подъeзд)\nДомофон 233\nВторой этаж";
+                break;
+            case "Пробное занятие":
+                response = "600 рублей";
                 break;
             case "/test":
-                response = "CompanyId = "+getYclientsCompanyId();
+                response = "CompanyId = " + getYclientsCompanyId();
+                break;
+            case "Купить абонемент":
+                response = "https://ailfo.tb.ru/price";
+                break;
+            case "Направления":
+                response = "Гибкость 60 минут\nЗдоровая спина 60 минут\nРельеф + гибкость 90 минут\n" +
+                        "Два шпагата 90 минут\nГибкость и медитация 90 минут\nРельеф 60 минут\n" +
+                        "Свободный формат 60-90 минут\n" +
+                        "Акробатика 60 минут\nТанцы\nМедитация поющими чашами";
+                break;
+            case "Форматы":
+                response = "Форматы занятий:\nИндивидуальные тренировки\nМини группы - 3 человека";
+                break;
+            case "Найти студию":
+                response = "sendVideo";
+                break;
+            case "Чат\uD83D\uDCAC":
+                response = "https://t.me/+aoFPJzY-bP6LyVR3";
                 break;
             case "Получить тренеров":
                 try {
@@ -89,16 +130,34 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
 
 //отправка сообщения
-        if (response==null){
-            response="ошибка в работе бота.\nОтветное сообщение не подготовлено";
+        if (response == null) {
+            response = "ошибка в работе бота.\nОтветное сообщение не подготовлено";
         }
-        sendMessage(chatId, response);
+        if (!response.equals("sendVideo")) {
+            sendMessage(chatId, response);
+        } else {
+            // Путь к видеофайлу
+            String videoFilePath = "src/main/resources/videoRoute.mp4";
+            //Отправка видео
+            try {
+                // Создаем объект для отправки видео
+                SendVideo sendVideo = new SendVideo();
+                sendVideo.setChatId(chatId);
+                sendVideo.setVideo(new InputFile(videoFilePath));
+
+                // Отправляем видео
+                execute(sendVideo);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
+
     private void sendErrorMessage(long chatId, IOException e) {
-        String message = "Произошла ошибка при работе telegram бота yclients";
+        String message = "Произошла ошибка при работе telegram бота yclients:\n" + e.getMessage();
         sendMessage(chatId, message);
-        sendMessage(chatId, e.getMessage());
     }
 
     private void startCommandReceived(Long chatId, String name) {
@@ -110,7 +169,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText(textToSend);
-        System.out.println("chatId="+chatId +", textToSend="+ textToSend);
+        System.out.println("chatId=" + chatId + ", textToSend=" + textToSend);
         try {
             setButtonsMainMenu(sendMessage);
             execute(sendMessage);
@@ -150,16 +209,28 @@ public class TelegramBot extends TelegramLongPollingBot {
         List<KeyboardRow> keyboardRowList = new ArrayList();
         //Инициализируем первую строчку клавиатуры
         KeyboardRow keyboardFirstRow = new KeyboardRow();
+        KeyboardRow keyboardSecondRow = new KeyboardRow();
+        KeyboardRow keyboardThirdRow = new KeyboardRow();
 
-        keyboardFirstRow.add(new KeyboardButton("/start"));
-        keyboardFirstRow.add(new KeyboardButton("список услуг"));
-        keyboardFirstRow.add(new KeyboardButton("/help"));
-        keyboardFirstRow.add(new KeyboardButton("/test"));
+        //keyboardFirstRow.add(new KeyboardButton("/start"));
+        //keyboardFirstRow.add(new KeyboardButton("список услуг"));
+        //keyboardFirstRow.add(new KeyboardButton("/help"));
+        keyboardFirstRow.add(new KeyboardButton("На сайт студии"));
         //keyboardFirstRow.add(new KeyboardButton("Контакты"));
-        keyboardFirstRow.add(new KeyboardButton("Спросить администратора"));
+        keyboardFirstRow.add(new KeyboardButton("Админ\uD83D\uDC67"));
+        keyboardFirstRow.add(new KeyboardButton("Форматы"));
+        keyboardSecondRow.add(new KeyboardButton("Записаться онлайн"));
+        keyboardSecondRow.add(new KeyboardButton("Адрес студии"));
+        keyboardSecondRow.add(new KeyboardButton("Пробное занятие"));
+        keyboardThirdRow.add(new KeyboardButton("Купить абонемент"));
+        keyboardThirdRow.add(new KeyboardButton("Направления"));
+        //keyboardThirdRow.add(new KeyboardButton("Найти студию"));
+        keyboardThirdRow.add(new KeyboardButton("Чат\uD83D\uDCAC"));
 
         //Добавляем все строчки клавиатуры в список
         keyboardRowList.add(keyboardFirstRow);
+        keyboardRowList.add(keyboardSecondRow);
+        keyboardRowList.add(keyboardThirdRow);
         replyKeyboardMarkup.setKeyboard(keyboardRowList);
     }
 }
