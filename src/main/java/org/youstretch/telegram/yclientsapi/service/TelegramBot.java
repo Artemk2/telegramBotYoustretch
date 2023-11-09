@@ -68,7 +68,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     String partnerToken = getYclientsPartnerToken();
                     response = yclientsService.getBookServices(companyId, partnerToken);
                 } catch (IOException e) {
-                    sendErrorMessage(chatId, e);
+                    sendErrorMessageIOException(chatId, e);
                     throw new RuntimeException(e);
                 }
                 break;
@@ -99,10 +99,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                 response = "https://ailfo.tb.ru/price";
                 break;
             case "Направления":
-                response = "Гибкость 60 минут\nЗдоровая спина 60 минут\nРельеф + гибкость 90 минут\n" +
-                        "Два шпагата 90 минут\nГибкость и медитация 90 минут\nРельеф 60 минут\n" +
-                        "Свободный формат 60-90 минут\n" +
-                        "Акробатика 60 минут\nТанцы\nМедитация поющими чашами";
+                response = "1️⃣Гибкость (60 минут)\n2️⃣Здоровая спина (60 минут)\n\uD83D\uDCAA Рельеф + гибкость (90 минут)\n" +
+                        "Два шпагата (90 минут)\n\uD83E\uDDD8\u200D♀ Гибкость и ️медитация (90 минут)\nРельеф (60 минут)\n" +
+                        "Свободный формат (60-90 минут)\n" +
+                        "Акробатика (60 минут)\nТанцы\nМедитация поющими чашами";
                 break;
             case "Форматы":
                 response = "Форматы занятий:\nИндивидуальные тренировки\nМини группы - 3 человека";
@@ -117,7 +117,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 try {
                     response = yclientsService.getStaffs(messageText);
                 } catch (IOException e) {
-                    sendErrorMessage(chatId, e);
+                    sendErrorMessageIOException(chatId, e);
                     throw new RuntimeException(e);
                 }
                 break;
@@ -149,15 +149,24 @@ public class TelegramBot extends TelegramLongPollingBot {
                 execute(sendVideo);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
+                sendErrorMessageTelegramApiException(chatId, e);
             }
         }
 
     }
 
 
-    private void sendErrorMessage(long chatId, IOException e) {
-        String message = "Произошла ошибка при работе telegram бота yclients:\n" + e.getMessage();
+    private void sendErrorMessageIOException(long chatId, IOException e) {
+        String error = String.valueOf(e);
+        errorMessage(chatId,error);
+    }private void sendErrorMessageTelegramApiException(long chatId, TelegramApiException e) {
+        String error = String.valueOf(e);
+        errorMessage(chatId,error);
+    }
+    private void errorMessage(long chatId, String error){
+        String message = "Произошла ошибка при работе telegram бота yclients:\n" ;
         sendMessage(chatId, message);
+        sendMessage(chatId, error);
     }
 
     private void startCommandReceived(Long chatId, String name) {
