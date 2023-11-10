@@ -108,14 +108,18 @@ public class TelegramBot extends TelegramLongPollingBot {
                 photoPath = "https://259506.selcdn.ru/sites-static/site615630/7b71039d-0143-411b-8900-6aa1fd8660e2/7b71039d-0143-411b-8900-6aa1fd8660e2-6701173.jpeg";
                 sendPhoto(chatId, photoPath);
                 response = "https://b911101.yclients.com/company/528085/activity/select?o=act" + formattedDate + "\n";
-                response = response + "Переходите по ссылки для записи в yclients";
+                response = response + "Переходите по ссылке для записи в yclients";
                 break;
             case "Адрес студии":
                 //Photo: Лена и Вика на кубиках
                 photoPath = "https://259506.selcdn.ru/sites-static/site615630/9bb43647-7d97-42e5-bfbf-d59a626a2bf8/9bb43647-7d97-42e5-bfbf-d59a626a2bf8-6701568.jpeg";
                 sendPhoto(chatId, photoPath);
-                response = "м. Менделеевская\n" +
-                        "г. Москва, ул. Новослободская, д. 26, корп. 1\nКабинет 233 (2 подъeзд)\nДомофон 233\nВторой этаж";
+                response = """
+                        м. Менделеевская
+                        г. Москва, ул. Новослободская, д. 26, корп. 1
+                        Кабинет 233 (2 подъeзд)
+                        Домофон 233
+                        Второй этаж""";
                 break;
             case "Пробное занятие":
                 //Photo: Даша и Вика в студии
@@ -136,23 +140,33 @@ public class TelegramBot extends TelegramLongPollingBot {
                 //Photo: Вика, руки в форме сердечка
                 photoPath = "https://259506.selcdn.ru/sites-static/site615630/976cf0ee-a1dc-4b4f-934b-9f0384d1228e/976cf0ee-a1dc-4b4f-934b-9f0384d1228e-6701444.jpeg";
                 sendPhoto(chatId, photoPath);
-                response = "✅Гибкость (60 минут)\n" +
-                        "✅Здоровая спина (60 минут)\n" +
-                        "\uD83D\uDCAA Рельеф + гибкость (90 минут)\n" +
-                        "✅Два шпагата (90 минут)\n" +
-                        "\uD83E\uDDD8\u200D♀ Гибкость и ️медитация (90 минут)\n" +
-                        "✅Рельеф (60 минут)\n" +
-                        "✅Свободный формат (60-90 минут)\n" +
-                        "✅Акробатика (60 минут)\n" +
-                        "✅Танцы\n" +
-                        "✅Медитация поющими чашами\n" +
-                        "✅Энергомассаж";
+                response = """
+                        ✅Гибкость (60 минут)
+                        ✅Здоровая спина (60 минут)
+                        \uD83D\uDCAA Рельеф + гибкость (90 минут)
+                        ✅Два шпагата (90 минут)
+                        \uD83E\uDDD8\u200D♀ Гибкость и ️медитация (90 минут)
+                        ✅Рельеф (60 минут)
+                        ✅Свободный формат (60-90 минут)
+                        ✅Акробатика (60 минут)
+                        ✅Танцы (60 минут)
+                        ✅Медитация поющими чашами (60 минут)
+                        ✅Энергомассаж (60 минут)""";
                 break;
             case "Форматы":
                 //Photo: Лена на полу
                 photoPath = "https://259506.selcdn.ru/sites-static/site615630/684d1f28-006d-4cf6-99b9-cfbe321b0958/684d1f28-006d-4cf6-99b9-cfbe321b0958-6701536.jpeg";
                 sendPhoto(chatId, photoPath);
-                response = "☘️Форматы занятий:\n☘️Индивидуальные тренировки\n☘️Мини группы - 3 человека";
+                response = """
+                        ☘️Форматы занятий:
+                        ☘️Индивидуальные тренировки
+                        ☘️Мини группы - 3 человека""";
+                break;
+            case "Супер SALE":
+                //Photo: Скидки ноября
+                photoPath = "https://259506.selcdn.ru/sites-static/site615630/c2d645b4-d96b-4ed3-86df-d3d841dc354c/c2d645b4-d96b-4ed3-86df-d3d841dc354c-6711835.jpeg";
+                sendPhoto(chatId, photoPath);
+                response = "Промокод для оплаты на сайте youstretch.ru: HAPPY15";
                 break;
             case "Найти студию":
                 response = "sendVideo";
@@ -252,11 +266,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         sendMessage(chatId, error);
     }
 
-    private void startCommandReceived(Long chatId, String name) {
-        String answer = "Привет, " + name + ", я - бот студии You Stretch!\nХотите записаться на занятие? Я помогу Вам выбрать подходящее время и забронировать место. \nКакое время и дата Вам удобны?";
-        sendMessage(chatId, answer);
-    }
-
     private void sendMessage(Long chatId, String textToSend) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
@@ -267,21 +276,6 @@ public class TelegramBot extends TelegramLongPollingBot {
             execute(sendMessage);
         } catch (TelegramApiException e) {
             throw new RuntimeException("Ошибка при отправке сообщения", e);
-        }
-    }
-
-    private void sendMessageToReply(Message message, String textToSend) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.enableMarkdown(true);
-        /**установка Id клиента**/
-        sendMessage.setChatId(message.getChatId().toString());
-        sendMessage.setReplyToMessageId(message.getMessageId());
-        sendMessage.setText(textToSend);
-        try {
-            setButtonsMainMenu(sendMessage);
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException("Unable to send message to user", e);
         }
     }
 
@@ -303,6 +297,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         KeyboardRow keyboardFirstRow = new KeyboardRow();
         KeyboardRow keyboardSecondRow = new KeyboardRow();
         KeyboardRow keyboardThirdRow = new KeyboardRow();
+        KeyboardRow keyboardFortyRow = new KeyboardRow();
 
         //keyboardFirstRow.add(new KeyboardButton("/start"));
         //keyboardFirstRow.add(new KeyboardButton("список услуг"));
@@ -318,11 +313,13 @@ public class TelegramBot extends TelegramLongPollingBot {
         keyboardThirdRow.add(new KeyboardButton("Направления"));
         //keyboardThirdRow.add(new KeyboardButton("Найти студию"));
         keyboardThirdRow.add(new KeyboardButton("Чат\uD83D\uDCAC"));
+        keyboardFortyRow.add(new KeyboardButton("Супер SALE"));
 
         //Добавляем все строчки клавиатуры в список
         keyboardRowList.add(keyboardFirstRow);
         keyboardRowList.add(keyboardSecondRow);
         keyboardRowList.add(keyboardThirdRow);
+        keyboardRowList.add(keyboardFortyRow);
         replyKeyboardMarkup.setKeyboard(keyboardRowList);
     }
 }
