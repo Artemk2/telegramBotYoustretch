@@ -40,4 +40,4 @@ build/
 
 #temp#
 .temp/
-/.mvn/
+.mvn/
