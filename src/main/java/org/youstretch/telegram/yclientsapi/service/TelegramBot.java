@@ -179,6 +179,13 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendPhoto(chatId, photoPath);
                 response = "Промокод для оплаты на сайте youstretch.ru: HAPPY15";
                 break;
+            case "Массаж лица":
+                //Photo: Скидки ноября
+                photoPath = "https://259506.selcdn.ru/sites-static/site615630/3b168d6c-95ea-4f1f-aa87-d7122eb6bb17/3b168d6c-95ea-4f1f-aa87-d7122eb6bb17-6779044.jpeg";
+                sendPhoto(chatId, photoPath);
+                response = "Группа по массажу лица.\n" +
+                        "https://t.me/+HNZs71UZo40xMGFi.";
+                break;
             case "sendPhoto":
                 //Юля на сапе
                 photoPath = "https://259506.selcdn.ru/sites-static/site615630/035f36b7-1e6d-4b30-ad9f-3c337671aa36/035f36b7-1e6d-4b30-ad9f-3c337671aa36-5665126.jpeg";
@@ -327,6 +334,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         keyboardThirdRow.add(new KeyboardButton("Направления"));
         keyboardThirdRow.add(new KeyboardButton("Чат\uD83D\uDCAC"));
         keyboardFortyRow.add(new KeyboardButton("Супер SALE"));
+        keyboardFortyRow.add(new KeyboardButton("Массаж лица"));
 
         //Добавляем все строчки клавиатуры в список
         keyboardRowList.add(keyboardFirstRow);
