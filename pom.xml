@@ -12,7 +12,7 @@
 
     <groupId>org.youstretch.telegram</groupId>
     <artifactId>telegramBotExhangeRate</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>3.0-SNAPSHOT</version>
     <name>telegramBotExhangeRate</name>
     <description>Demo project for Spring Boot</description>
     <properties>
