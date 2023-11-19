@@ -14,7 +14,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.youstretch.telegram.yclientsapi.config.BotConfig;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -47,6 +46,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         return botConfig.getYclientsPartnerToken();
     }
 
+
     @Override
     public void onUpdateReceived(Update update) {
         println("Telegram bot started");
@@ -56,11 +56,11 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         long chatId = update.getMessage().getChatId();
         String messageText = update.getMessage().getText().trim();
-        System.out.println("In chatId =" + chatId + "Text: " + messageText);
+        System.out.println("In chatId =" + chatId + " Text: " + messageText);
 
         YclientsService yclientsService = new YclientsService();
         String response = null;
-        String photoPath = null;
+        String photoPath ;
         //Сегодняшняя дата
         LocalDate today = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -125,7 +125,12 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendMessage(chatId,response);
                 response = "Путь от Метро Менделеевская";
                 String videoFilePath = "video/pathToYoustretch.MOV";
-                sendLocalVideo(chatId, videoFilePath);
+                Thread thread = new Thread(() -> {
+                    // Ваш код, который нужно выполнить параллельно
+                    sendLocalVideo(chatId, videoFilePath);
+                });
+                // Запускаем поток
+                thread.start();
                 break;
             case "Пробное занятие":
                 //Photo: Даша и Вика в студии
