@@ -7,7 +7,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
@@ -16,6 +15,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.youstretch.telegram.yclientsapi.config.BotConfig;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -46,6 +46,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         return botConfig.getYclientsPartnerToken();
     }
 
+
     @Override
     public void onUpdateReceived(Update update) {
         println("Telegram bot started");
@@ -55,10 +56,15 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         long chatId = update.getMessage().getChatId();
         String messageText = update.getMessage().getText().trim();
+        System.out.println("In chatId =" + chatId + " Text: " + messageText);
 
         YclientsService yclientsService = new YclientsService();
         String response = null;
-        String photoPath = null;
+        String photoPath ;
+        //Сегодняшняя дата
+        LocalDate today = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDateToday = today.format(formatter);
         //Обработка сообщения
         switch (messageText) {
             case "/start":
@@ -99,15 +105,11 @@ public class TelegramBot extends TelegramLongPollingBot {
                 response = "youstretch.ru";
                 break;
             case "Записаться онлайн":
-                LocalDate today = LocalDate.now();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                String formattedDate = today.format(formatter);
-                System.out.println(formattedDate);
 
                 //Photo: Юля в белом на шпагате с сердечком
                 photoPath = "https://259506.selcdn.ru/sites-static/site615630/7b71039d-0143-411b-8900-6aa1fd8660e2/7b71039d-0143-411b-8900-6aa1fd8660e2-6701173.jpeg";
                 sendPhoto(chatId, photoPath);
-                response = "https://b911101.yclients.com/company/528085/activity/select?o=act" + formattedDate + "\n";
+                response = "https://b911101.yclients.com/company/528085/activity/select?o=act" + formattedDateToday + "\n";
                 response = response + "Переходите по ссылке для записи в yclients";
                 break;
             case "Адрес студии":
@@ -120,6 +122,15 @@ public class TelegramBot extends TelegramLongPollingBot {
                         Кабинет 233 (2 подъeзд)
                         Домофон 233
                         Второй этаж""";
+                sendMessage(chatId,response);
+                response = "Путь от Метро Менделеевская";
+                String videoFilePath = "video/pathToYoustretch.MOV";
+                Thread thread = new Thread(() -> {
+                    // Ваш код, который нужно выполнить параллельно
+                    sendLocalVideo(chatId, videoFilePath);
+                });
+                // Запускаем поток
+                thread.start();
                 break;
             case "Пробное занятие":
                 //Photo: Даша и Вика в студии
@@ -168,11 +179,37 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendPhoto(chatId, photoPath);
                 response = "Промокод для оплаты на сайте youstretch.ru: HAPPY15";
                 break;
-            case "Найти студию":
-                response = "sendVideo";
-                //String videoPath = "https://youtu.be/E85_wBc57zY";
-                String videoPath = "https://youtu.be/CzY5eKWwVEo";
-                sendVideo(chatId, videoPath);
+            case "Хочу скидку":
+                //Photo: скидки 15
+                photoPath = "https://259506.selcdn.ru/sites-static/site615630/46355aa9-25fc-45df-a48e-1d8db5297f74/46355aa9-25fc-45df-a48e-1d8db5297f74-6779161.jpeg";
+                sendPhoto(chatId, photoPath);
+                response = """
+                        Отзыв напиши - скидку получи! 😉
+                        Прекрасные наши ученики, мы предлагаем Вам помочь развитию нашей студии ☺️
+                        Благодаря Вашим отзывам студия недавно получила от «Яндекса»  звание «ХОРОШЕЕ МЕСТО»🔥- спасибо!
+                        
+                        Предлагаем оставить отзывы о нашей студии осознанного фитнеса YOU STRETCH. За каждый отзыв скидка 5% на покупку абонемента - наш приятный бонус для каждого! 🫶
+                        
+                        Для начисления скидки скриншот отзыва необходимо отправить администратору.\s
+                        
+                        Студия есть в 2Гис, Яндекс картах, гугл картах.\s
+                        Скидки СУММИРУЮТСЯ (максимум 15%).
+                        
+                        🫶 Ссылки ⬇️
+                        
+                        https://yandex.ru/maps/org/199635230552
+                        
+                        https://2gis.ru/moscow/geo/70000001059760797
+                        
+                        https://maps.app.goo.gl/w8vUSbeJTZCFrGqFA?g_st=it
+                        """;
+                break;
+            case "Массаж лица":
+                //Photo: Массаж лица
+                photoPath = "https://259506.selcdn.ru/sites-static/site615630/3b168d6c-95ea-4f1f-aa87-d7122eb6bb17/3b168d6c-95ea-4f1f-aa87-d7122eb6bb17-6779044.jpeg";
+                sendPhoto(chatId, photoPath);
+                response = "Группа по массажу лица.\n" +
+                        "https://t.me/+HNZs71UZo40xMGFi.";
                 break;
             case "sendPhoto":
                 //Юля на сапе
@@ -203,8 +240,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 response = "Бот Вас не понял. Дайте новую команду";
                 break;
         }
-
-//отправка сообщения
+    //отправка сообщения
         if (response == null) {
             response = "ошибка в работе бота.\nОтветное сообщение не подготовлено";
         }
@@ -213,20 +249,30 @@ public class TelegramBot extends TelegramLongPollingBot {
         //end
     }
 
-    private void sendVideo(long chatId, String videoPath) {
+    private void sendLocalVideo(long chatId, String videoFilePath) {
         //Отправка видео
-        try {
-            // Создаем объект для отправки видео
+        // Создаём объект для отправки видео
+        InputStream videoStream = TelegramBot.class.getClassLoader().getResourceAsStream(videoFilePath);
+        if (videoStream != null) {
             SendVideo sendVideo = new SendVideo();
             sendVideo.setChatId(chatId);
-            sendVideo.setVideo(new InputFile(videoPath));
-
-            // Отправляем видео
-            execute(sendVideo);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-            sendErrorMessageTelegramApiException(chatId, e);
+//        sendVideo.setVideo(new InputFile(new File(videoFilePath)));
+            sendVideo.setVideo(new InputFile(videoStream, "your_video_name"));
+            // Установка размеров видео
+            sendVideo.setWidth(576);
+            sendVideo.setHeight(1280);
+            try {
+                // Отправляем видео
+                execute(sendVideo);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+                sendErrorMessageTelegramApiException(chatId, e);
+            }
+        }else {
+            System.out.println("Video file not found!");
+            sendMessage(chatId,"Видео файл не обнаружен");
         }
+
     }
 
 
@@ -311,9 +357,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         keyboardSecondRow.add(new KeyboardButton("Пробное занятие"));
         keyboardThirdRow.add(new KeyboardButton("Купить абонемент"));
         keyboardThirdRow.add(new KeyboardButton("Направления"));
-        //keyboardThirdRow.add(new KeyboardButton("Найти студию"));
         keyboardThirdRow.add(new KeyboardButton("Чат\uD83D\uDCAC"));
-        keyboardFortyRow.add(new KeyboardButton("Супер SALE"));
+        keyboardFortyRow.add(new KeyboardButton("Хочу скидку"));
+        keyboardFortyRow.add(new KeyboardButton("Массаж лица"));
 
         //Добавляем все строчки клавиатуры в список
         keyboardRowList.add(keyboardFirstRow);

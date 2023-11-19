@@ -40,4 +40,5 @@ build/
 
 #temp#
 .temp/
-/.mvn/
+.mvn/
+/release/
