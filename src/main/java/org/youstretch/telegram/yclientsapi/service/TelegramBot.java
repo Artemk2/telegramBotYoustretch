@@ -14,7 +14,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.youstretch.telegram.yclientsapi.config.BotConfig;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -47,6 +46,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         return botConfig.getYclientsPartnerToken();
     }
 
+
     @Override
     public void onUpdateReceived(Update update) {
         println("Telegram bot started");
@@ -56,11 +56,11 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         long chatId = update.getMessage().getChatId();
         String messageText = update.getMessage().getText().trim();
-        System.out.println("In chatId =" + chatId + "Text: " + messageText);
+        System.out.println("In chatId =" + chatId + " Text: " + messageText);
 
         YclientsService yclientsService = new YclientsService();
         String response = null;
-        String photoPath = null;
+        String photoPath ;
         //Сегодняшняя дата
         LocalDate today = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -125,7 +125,12 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendMessage(chatId,response);
                 response = "Путь от Метро Менделеевская";
                 String videoFilePath = "video/pathToYoustretch.MOV";
-                sendLocalVideo(chatId, videoFilePath);
+                Thread thread = new Thread(() -> {
+                    // Ваш код, который нужно выполнить параллельно
+                    sendLocalVideo(chatId, videoFilePath);
+                });
+                // Запускаем поток
+                thread.start();
                 break;
             case "Пробное занятие":
                 //Photo: Даша и Вика в студии
@@ -173,6 +178,38 @@ public class TelegramBot extends TelegramLongPollingBot {
                 photoPath = "https://259506.selcdn.ru/sites-static/site615630/c2d645b4-d96b-4ed3-86df-d3d841dc354c/c2d645b4-d96b-4ed3-86df-d3d841dc354c-6711835.jpeg";
                 sendPhoto(chatId, photoPath);
                 response = "Промокод для оплаты на сайте youstretch.ru: HAPPY15";
+                break;
+            case "Хочу скидку":
+                //Photo: скидки 15
+                photoPath = "https://259506.selcdn.ru/sites-static/site615630/46355aa9-25fc-45df-a48e-1d8db5297f74/46355aa9-25fc-45df-a48e-1d8db5297f74-6779161.jpeg";
+                sendPhoto(chatId, photoPath);
+                response = """
+                        Отзыв напиши - скидку получи! 😉
+                        Прекрасные наши ученики, мы предлагаем Вам помочь развитию нашей студии ☺️
+                        Благодаря Вашим отзывам студия недавно получила от «Яндекса»  звание «ХОРОШЕЕ МЕСТО»🔥- спасибо!
+                        
+                        Предлагаем оставить отзывы о нашей студии осознанного фитнеса YOU STRETCH. За каждый отзыв скидка 5% на покупку абонемента - наш приятный бонус для каждого! 🫶
+                        
+                        Для начисления скидки скриншот отзыва необходимо отправить администратору.\s
+                        
+                        Студия есть в 2Гис, Яндекс картах, гугл картах.\s
+                        Скидки СУММИРУЮТСЯ (максимум 15%).
+                        
+                        🫶 Ссылки ⬇️
+                        
+                        https://yandex.ru/maps/org/199635230552
+                        
+                        https://2gis.ru/moscow/geo/70000001059760797
+                        
+                        https://maps.app.goo.gl/w8vUSbeJTZCFrGqFA?g_st=it
+                        """;
+                break;
+            case "Массаж лица":
+                //Photo: Массаж лица
+                photoPath = "https://259506.selcdn.ru/sites-static/site615630/3b168d6c-95ea-4f1f-aa87-d7122eb6bb17/3b168d6c-95ea-4f1f-aa87-d7122eb6bb17-6779044.jpeg";
+                sendPhoto(chatId, photoPath);
+                response = "Группа по массажу лица.\n" +
+                        "https://t.me/+HNZs71UZo40xMGFi.";
                 break;
             case "sendPhoto":
                 //Юля на сапе
@@ -321,7 +358,8 @@ public class TelegramBot extends TelegramLongPollingBot {
         keyboardThirdRow.add(new KeyboardButton("Купить абонемент"));
         keyboardThirdRow.add(new KeyboardButton("Направления"));
         keyboardThirdRow.add(new KeyboardButton("Чат\uD83D\uDCAC"));
-        keyboardFortyRow.add(new KeyboardButton("Супер SALE"));
+        keyboardFortyRow.add(new KeyboardButton("Хочу скидку"));
+        keyboardFortyRow.add(new KeyboardButton("Массаж лица"));
 
         //Добавляем все строчки клавиатуры в список
         keyboardRowList.add(keyboardFirstRow);
